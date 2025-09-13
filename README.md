@@ -18,7 +18,7 @@ It supports **alignment** and **speaker diarization**, defaulting the output to 
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/<your-username>/whisperx-transcriber.git
+git clone https://github.com/rodrigoguarischi/whisperx-transcriber.git
 cd whisperx-transcriber
 ```
 
