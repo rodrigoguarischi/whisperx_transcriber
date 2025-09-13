@@ -18,8 +18,8 @@ It supports **alignment** and **speaker diarization**, defaulting the output to 
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/rodrigoguarischi/whisperx-transcriber.git
-cd whisperx-transcriber
+git clone https://github.com/rodrigoguarischi/whisperx_transcriber.git
+cd whisperx_transcriber
 ```
 
 ### 2. Place your audio file
@@ -29,7 +29,7 @@ By default, the script looks for audio.m4a, but you can override it via environm
 
 ### 3. Build the Docker image
 ```bash
-docker build -t whisperx-transcriber .
+docker build -t whisperx_transcriber .
 ```
 
 ### 4. Run transcription
@@ -40,7 +40,7 @@ docker run -it --rm -v $(pwd):/app \
   -e NUM_SPEAKERS=2 \
   -e AUDIO_FILE=audio.m4a \
   -e OUTPUT_FILE=transcribed.txt \
-  whisperx-transcriber
+  whisperx_transcriber
 ```
 
 Explanation:
