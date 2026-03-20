@@ -13,8 +13,19 @@ import os
 from collections import defaultdict
 import sys
 import math
+import torch
+import lightning_fabric.utilities.cloud_io as _lf_cloud_io
 import whisperx
 import pandas as pd
+
+# PyTorch 2.6 changed torch.load to default weights_only=True, which blocks
+# omegaconf types embedded in pyannote/whisperx checkpoints. Patch the
+# lightning_fabric loader (the actual call site) to restore the old behavior
+# for these trusted model files.
+def _patched_load(path, map_location=None, **kwargs):
+    return torch.load(path, map_location=map_location, weights_only=False)
+
+_lf_cloud_io._load = _patched_load
 
 # robust defaults, override with env vars
 HF_TOKEN = os.getenv("HF_TOKEN")
@@ -56,8 +67,8 @@ try:
     model = whisperx.load_model(MODEL_NAME, DEVICE, compute_type=COMPUTE_TYPE)
 except Exception as e:
     print("Warning: load_model with compute_type failed:", e, file=sys.stderr)
-    print("Retrying without compute_type...")
-    model = whisperx.load_model(MODEL_NAME, DEVICE)
+    print("Retrying with float32 compute_type...")
+    model = whisperx.load_model(MODEL_NAME, DEVICE, compute_type="float32")
 
 # Transcribe (get segments)
 print("Loading audio and transcribing...")

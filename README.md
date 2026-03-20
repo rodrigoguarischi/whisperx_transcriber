@@ -1,16 +1,16 @@
 # WhisperX Transcriber
 
-This repository provides a simple **Dockerized pipeline** to transcribe audio using [WhisperX](https://github.com/m-bain/whisperX).  
-It supports **alignment** and **speaker diarization**, defaulting the output to two speakers.
+This repository provides a simple **Dockerized pipeline** to transcribe audio using [WhisperX](https://github.com/m-bain/whisperX).
+It supports **alignment** and **speaker diarization**.
 
 ---
 
 ## Files
 
-- `Dockerfile` — Defines the container  
-- `requirements.txt` — Python dependencies  
-- `transcribe.py` — Main transcription script (WhisperX with diarization)  
-- `README.md` — Instructions  
+- `Dockerfile` — Defines the container
+- `requirements.txt` — Python dependencies
+- `transcribe.py` — Main transcription script (WhisperX with diarization)
+- `io/` — Drop input audio files here; transcripts are written here too (gitignored)
 
 ---
 
@@ -24,8 +24,7 @@ cd whisperx_transcriber
 
 ### 2. Place your audio file
 
-Put your audio file (e.g., audio.m4a) in the project root.
-By default, the script looks for audio.m4a, but you can override it via environment variables.
+Put your audio file (e.g., `recording.m4a`) in the `io/` folder.
 
 ### 3. Build the Docker image
 ```bash
@@ -34,32 +33,34 @@ docker build -t whisperx_transcriber .
 
 ### 4. Run transcription
 ```bash
-docker run -it --rm -v $(pwd):/app \
+docker run -it --rm \
+  -v $(pwd)/io:/app/io \
   -e HF_TOKEN=hf_xxx \
   -e WHISPER_MODEL=large-v2 \
   -e NUM_SPEAKERS=2 \
-  -e AUDIO_FILE=audio.m4a \
-  -e OUTPUT_FILE=transcribed.txt \
+  -e AUDIO_FILE=io/recording.m4a \
+  -e OUTPUT_FILE=io/recording.txt \
   whisperx_transcriber
 ```
 
-Explanation:
+| Flag | Description |
+|---|---|
+| `-v $(pwd)/io:/app/io` | Mounts the `io/` folder into the container |
+| `HF_TOKEN` | Your Hugging Face access token (required for diarization) |
+| `WHISPER_MODEL` | Model to use — `tiny`, `base`, `small`, `medium`, `large-v2` (default: `large-v2`) |
+| `NUM_SPEAKERS` | Expected number of speakers |
+| `AUDIO_FILE` | Input file path (relative to container) |
+| `OUTPUT_FILE` | Output transcript path |
 
- - -v $(pwd):/app → Mounts your working directory inside the container
- - HF_TOKEN=hf_xxx → Your Hugging Face access token (required for diarization)
- - WHISPER_MODEL=large-v2 → Model to use (default: large-v2)
- - NUM_SPEAKERS=2 → Number of diarized speakers (script enforces 2 in this version)
- - AUDIO_FILE=audio.m4a → Input file (must exist in your project root)
- - OUTPUT_FILE=transcribed.txt → Output transcript file.
-
- ### 5. View the output
+### 5. View the output
 ```bash
-cat transcribed.txt
+cat io/recording.txt
 ```
 
-Notes:
-------
- - Default model is large-v2 but you can replace it (options: `tiny`, `base`, `small`,` medium`, `large-v2`).
- - Diarization requires a valid Hugging Face token. Get one from: [Hugging Face settings → Access Tokens](https://huggingface.co/settings/tokens).
- - The transcript is saved with speaker labels (e.g., **Person 1: ...**, **Person 2: ...**).
- - CPU inference is supported, but for faster transcription use a GPU-enabled container.
+---
+
+## Notes
+
+- Diarization requires a valid Hugging Face token. Get one at [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens).
+- The transcript is saved with speaker labels (e.g., **Person 1: ...**, **Person 2: ...**).
+- CPU inference is supported; for faster transcription use a GPU-enabled container.

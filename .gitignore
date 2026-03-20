@@ -1,1 +1,3 @@
-audio.m4a
+io/*
+!io/.gitkeep
+run_script.sh
